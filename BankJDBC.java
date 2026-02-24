@@ -6,7 +6,7 @@ class BankJDBC {
 	
     static final String URL = "jdbc:mysql://localhost:3306/bankdb";
     static final String USER = "root";
-    static final String PASS = "root";
+    static final String PASS = "***";
 
     static Scanner sc = new Scanner(System.in);
 
@@ -15,7 +15,7 @@ class BankJDBC {
         Connection con = DriverManager.getConnection(URL, USER, PASS);
 
         while (true) {
-
+			// Start 
             System.out.println("\n******** WELCOME ********");
             System.out.println("1. CREATE ACCOUNT");
             System.out.println("2. LOGIN ");
@@ -36,24 +36,40 @@ class BankJDBC {
 
                     System.out.print("Pin: ");
                     int pin = sc.nextInt();
-
+					
                     System.out.print("Amount: ");
                     double balance = sc.nextDouble();
 					
+					sc.nextLine();
+					System.out.print("Account Type: ");
+					String type=sc.nextLine();
+					
+					//---------- using try catch to handleing an exception ------------
 					try
 					{
 						String sql = "INSERT INTO account(name,contact,pin,balance) VALUES(?,?,?,?)";
+						String sqlt= "INSERT into transactions(name,amount,type) VALUES(?,?,?)";
                     PreparedStatement ps = con.prepareStatement(sql);
+					PreparedStatement pst = con.prepareStatement(sqlt);
 
                     ps.setString(1, name);
                     ps.setLong(2, contact);
                     ps.setInt(3, pin);
                     ps.setDouble(4, balance);
 					
+					pst.setString(1, name);
+                   // pst.setLong(2, contact);
+                    pst.setDouble(2, balance);
+					pst.setString(3,type);
+					
+					pst.executeUpdate();
                     ps.executeUpdate();
 
                     System.out.println("Account Created Successfully!");
 					}
+					
+					//-------- number should be unique --------------
+					
 					catch (SQLIntegrityConstraintViolationException e)
 					{
 					 System.out.println("Account already exists with this contact number! ");
@@ -78,7 +94,8 @@ class BankJDBC {
 
                     System.out.print("Pin: ");
                     int pin = sc.nextInt();
-
+					
+					//----------- checking user Credentials --------
                     String sql = "SELECT * FROM account WHERE contact=? AND pin=?";
                     PreparedStatement ps = con.prepareStatement(sql);
 
@@ -90,13 +107,15 @@ class BankJDBC {
                     if (rs.next()) {
 
                         System.out.println("Login Successful!");
-
+						
+						// --------------- Features of my bank ---------
                         while (true) {
 
                             System.out.println("\n1.Deposit");
                             System.out.println("2.Withdraw");
                             System.out.println("3.Check Balance");
-                            System.out.println("4.Logout");
+							System.out.println("4.Transaction");
+                            System.out.println("5.Logout");
                             System.out.print("Enter option: ");
                             int opt1 = sc.nextInt();
 
@@ -121,7 +140,7 @@ class BankJDBC {
 
                                 // ===== Withdraw =====
                                 case 2: {
-                                    System.out.print("Enter amount: ");
+                                     System.out.print("Enter amount: ");
                                      double amt = sc.nextDouble();
                                      
 									 System.out.print("Contact: ");
@@ -203,9 +222,34 @@ class BankJDBC {
 									}
                                     break;
                                 }
+								
+								//=========== Transaction ========
+								case 4:
+									System.out.println(" This feature is building ");
+									System.out.print("Contact: ");
+									long contact3 = sc.nextLong();
 
+									System.out.print("Pin: ");
+									int pin3 = sc.nextInt();
+
+									String sql3 = "SELECT * FROM account WHERE contact=? AND pin=?";
+									PreparedStatement ps7 = con.prepareStatement(sql3);
+
+									ps7.setLong(1, contact3);
+									ps7.setInt(2, pin3);
+
+									ResultSet rs7 = ps7.executeQuery();
+									if (rs7.next())
+									{
+										
+									}
+									else {
+										System.out.println("Invalid Credentials! ");
+									}
+									break;
+									
                                 // ===== Logout =====
-                                case 4:
+                                case 5:
                                     System.out.println("Logged Out!");
                                     break;
 
